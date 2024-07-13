@@ -20,7 +20,7 @@ public class Movie {
     private Long id;
     private String title;
     private String genre;
-    private String watchStatus;
+    private Boolean watched;
     private Date watchDate;
     private Date createdAt;
 }
