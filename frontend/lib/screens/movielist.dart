@@ -47,7 +47,7 @@ class _MovielistState extends State<Movielist> {
       print('Failed to delete movie');
     }
   }
-
+  
   Future<void> confirmDeleteDialog(int id) async {
     return showDialog(
       context: context,

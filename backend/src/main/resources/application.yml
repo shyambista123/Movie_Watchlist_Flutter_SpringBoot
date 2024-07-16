@@ -1,1 +1,5 @@
-spring.application.name=backend
+spring:
+  application:
+    name: backend
+#server:
+#  address: 192.168.1.64
