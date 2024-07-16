@@ -21,7 +21,7 @@ class _MovielistState extends State<Movielist> {
 
   Future<void> fetchMovies() async {
     // final response = await http.get(Uri.parse('http://192.168.1.64:8080/api/movies'));
-    final response = await http.get(Uri.parse('http://localhost:8080/api/movies'));
+    final response = await http.get(Uri.parse('http://localhost:8080/api/movies')); 
 
     if (response.statusCode == 200) {
       setState(() {
