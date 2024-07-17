@@ -16,4 +16,12 @@ public class UserController {
     public List<User> allUsers(){
         return userRepository.findAll();
     }
+
+    @GetMapping("/hello-world")
+    public String helloWorld(){
+        return "<h1 style='color: +" +
+                "+" +
+                "++++" +
+                "+; text-align:center;'>Hello world</h1>";
+    }
 }
