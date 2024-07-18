@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/login.dart';
 
 class RegisterPage extends StatelessWidget {
   final ValueNotifier<bool> _obscurePassword = ValueNotifier<bool>(true);
@@ -161,21 +162,37 @@ class RegisterPage extends StatelessWidget {
                         end: Alignment.bottomRight,
                       ),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Register",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: const Center(
+                        child: Text(
+                          "Register",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 70),
-                  const Text(
-                    "Already have an account? Login",
-                    style: TextStyle(
-                      color: Colors.blue,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    },
+                    child: const Text(
+                      "Already have an account? Login",
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
                     ),
                   ),
                 ],

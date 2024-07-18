@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/movielist.dart';
-// import 'package:frontend/register.dart';
+import 'package:frontend/screens/register.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Movielist(),
+      home: RegisterPage(),
     );
   }
 }
