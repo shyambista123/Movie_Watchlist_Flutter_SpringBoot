@@ -1,27 +1,28 @@
 package com.moviewatchlist.controller;
 
 import com.moviewatchlist.model.User;
-import com.moviewatchlist.repository.UserRepository;
+import com.moviewatchlist.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
-    final UserRepository userRepository;
-    @GetMapping("/users")
-    public List<User> allUsers(){
-        return userRepository.findAll();
+    final UserService userService;
+    @PostMapping("/register")
+    public User registerUser(@RequestBody User user) {
+        return userService.saveUser(user);
     }
 
-    @GetMapping("/hello-world")
-    public String helloWorld(){
-        return "<h1 style='color: +" +
-                "+" +
-                "++++" +
-                "+; text-align:center;'>Hello world</h1>";
+    @PostMapping("/login")
+    public String loginUser(@RequestBody User user) {
+        if (userService.authenticate(user.getEmail(), user.getPassword())) {
+            return "Login successful!";
+        } else {
+            return "Invalid email or password.";
+        }
     }
+
 }

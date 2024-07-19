@@ -1,9 +1,6 @@
 package com.moviewatchlist.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,4 +20,7 @@ public class Movie {
     private Boolean watched;
     private Date watchDate;
     private Date createdAt;
+    @ManyToOne
+    @JoinTable(name = "user_id")
+    private User user;
 }
