@@ -15,7 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 // @CrossOrigin(origins = "http://localhost:46095")
 
-@CrossOrigin(origins = "http://localhost:45181")
+//@CrossOrigin(origins = "http://localhost:45181")
 public class MovieController {
 
     private final MovieService movieService;

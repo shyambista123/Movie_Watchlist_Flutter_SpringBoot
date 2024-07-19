@@ -25,14 +25,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email);
     }
 
-    public boolean authenticate(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            return false;
-        }
-        return passwordEncoder.matches(password, user.getPassword());
-    }
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);

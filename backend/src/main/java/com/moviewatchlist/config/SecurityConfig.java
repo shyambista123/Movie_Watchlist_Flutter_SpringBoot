@@ -21,10 +21,10 @@ public class SecurityConfig {
         return http.
                 csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth-> {
-                    auth.requestMatchers("/users/register/*,","/users/login/*").permitAll();
+                    auth.requestMatchers("/users/register**","/users/login**").permitAll();
+                    auth.requestMatchers("/api/movies/**","/users**").permitAll();
                     auth.anyRequest().authenticated();
-                }
-                )
+                })
                 .formLogin(AbstractHttpConfigurer::disable)
                 . build();
     }
