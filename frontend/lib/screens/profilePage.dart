@@ -18,15 +18,15 @@ class ProfilePage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 color: Colors.blueAccent,
-                child: Center(
+                child: const Center(
                   child: Column(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 50,
                         backgroundImage: NetworkImage('https://via.placeholder.com/150'),
                       ),
-                      const SizedBox(height: 10),
-                      const Text(
+                      SizedBox(height: 10),
+                      Text(
                         "John Doe",
                         style: TextStyle(
                           color: Colors.white,
@@ -34,7 +34,7 @@ class ProfilePage extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Text(
+                      Text(
                         "john.doe@example.com",
                         style: TextStyle(
                           color: Colors.white70,
