@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -61,8 +63,8 @@ class ProfilePage extends StatelessWidget {
                   height: 300,
                   child: const TabBarView(
                     children: [
-                      Center(child: Text("Watched List")),
-                      Center(child: Text("Movie Watchlist")),
+                      Center(child: Text("Watched List", style: TextStyle(color: Colors.white))),
+                      Center(child: Text("Movie Watchlist",  style: TextStyle(color: Colors.white))),
                     ],
                   ),
                 ),
