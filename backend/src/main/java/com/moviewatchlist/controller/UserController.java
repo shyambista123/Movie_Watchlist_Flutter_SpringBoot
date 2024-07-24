@@ -1,14 +1,12 @@
 package com.moviewatchlist.controller;
 
 import com.moviewatchlist.model.User;
+import com.moviewatchlist.service.JwtService;
 import com.moviewatchlist.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,24 +15,23 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
 
     @PostMapping("/register")
     public User registerUser(@RequestBody User user) {
         return userService.signUp(user);
     }
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User loginUser) {
-        // Perform authentication
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginUser.getEmail(), loginUser.getPassword())
-        );
+    @PostMapping("login")
+    public String login(@RequestBody User user){
 
-        // Set authentication in SecurityContext
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
 
-        // Return UserDetails (you can customize the response as needed)
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(userDetails);
+        if(authentication.isAuthenticated())
+            return jwtService.generateToken(user.getUsername());
+        else
+            return "Login Failed";
     }
+
 }

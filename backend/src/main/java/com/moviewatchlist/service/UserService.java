@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    final UserRepository userRepository;
-    final BCryptPasswordEncoder passwordEncoder;
+
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public User signUp(User user) {
         User existingUser = userRepository.findByEmail(user.getEmail());
@@ -31,7 +32,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found");
         }
         return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
+                .withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities("USER")
                 .build();

@@ -1,10 +1,16 @@
 package com.moviewatchlist.controller;
 
 import com.moviewatchlist.model.Movie;
+import com.moviewatchlist.model.User;
+import com.moviewatchlist.repository.UserRepository;
 import com.moviewatchlist.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,11 +20,11 @@ import java.util.Optional;
 @RequestMapping("/api/movies")
 @RequiredArgsConstructor
 // @CrossOrigin(origins = "http://localhost:46095")
-
 //@CrossOrigin(origins = "http://localhost:45181")
 public class MovieController {
 
     private final MovieService movieService;
+    private final UserRepository userRepository;
     
     @GetMapping
     public List<Movie> getAllMovies() {
@@ -37,20 +43,48 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<Movie> createMovie(@RequestBody Movie movie) {
-        Movie createdMovie = movieService.saveMovie(movie);
+        Movie createdMovie = movieService.saveMovie(movie, getCurrentUser());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMovie);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
-        Optional<Movie> existingMovie = movieService.getMovieById(id);
-        if (existingMovie.isPresent()) {
-            movie.setId(id);
-            Movie updatedMovie = movieService.saveMovie(movie);
+        Optional<Movie> existingMovieOptional = movieService.getMovieById(id);
+
+        if (existingMovieOptional.isPresent()) {
+            Movie existingMovie = existingMovieOptional.get();
+            existingMovie.setTitle(movie.getTitle());
+            existingMovie.setGenre(movie.getGenre());
+            existingMovie.setWatched(movie.getWatched());
+            existingMovie.setWatchDate(movie.getWatchDate());
+
+            // Update the movie with the current user
+            Movie updatedMovie = movieService.saveMovie(existingMovie, getCurrentUser());
+
             return ResponseEntity.ok(updatedMovie);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private UserDetails getCurrentUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                return (UserDetails) principal;
+            } else {
+                throw new UsernameNotFoundException("User not found in security context.");
+            }
+        }
+        throw new UsernameNotFoundException("User not authenticated.");
+    }
+
+    private User getCurrentUser() {
+        UserDetails userDetails = getCurrentUserDetails();
+        // Assuming UserDetails is your User entity class implementing UserDetails interface
+        // You may need to cast UserDetails to your User entity
+        return userRepository.findByEmail(userDetails.getUsername());
     }
 
     @DeleteMapping("/{id}")

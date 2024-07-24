@@ -1,6 +1,7 @@
 package com.moviewatchlist.service;
 
 import com.moviewatchlist.model.Movie;
+import com.moviewatchlist.model.User;
 import com.moviewatchlist.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,8 @@ public class MovieService {
         return movieRepository.findById(id);
     }
 
-    public Movie saveMovie(Movie movie) {
+    public Movie saveMovie(Movie movie, User user) {
+        movie.setUser(user); // Set the user who is creating the movie
         return movieRepository.save(movie);
     }
 
