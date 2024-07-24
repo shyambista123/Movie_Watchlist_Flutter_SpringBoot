@@ -1,11 +1,69 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:frontend/screens/login.dart';
 
 class RegisterPage extends StatelessWidget {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final ValueNotifier<bool> _obscurePassword = ValueNotifier<bool>(true);
   final ValueNotifier<bool> _obscureConfirmPassword = ValueNotifier<bool>(true);
 
-  RegisterPage({super.key});
+  RegisterPage({Key? key}) : super(key: key);
+
+  Future<void> registerUser(BuildContext context) async {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    // Validate inputs (you can add more validation as needed)
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      // Handle empty fields
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    // Example API endpoint
+    String apiUrl = 'https://your-backend-api.com/register';
+
+    // Prepare the payload
+    Map<String, String> data = {
+      'name': name,
+      'email': email,
+      'password': password,
+    };
+
+    // Make POST request
+    try {
+      var response = await http.post(Uri.parse(apiUrl), body: data);
+
+      if (response.statusCode == 200) {
+        // Registration successful, handle response as needed
+        // Example: Redirect to login page after registration
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        // Registration failed, handle errors
+        // Example: Show error message to user
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration failed')),
+        );
+      }
+    } catch (e) {
+      // Exception occurred during HTTP request
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error occurred')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +130,10 @@ class RegisterPage extends StatelessWidget {
                             ),
                           ),
                           child: TextField(
+                            controller: nameController,
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: "Full Name",
+                              hintText: "Name",
                               hintStyle: TextStyle(color: Colors.grey[400]),
                             ),
                           ),
@@ -87,6 +146,7 @@ class RegisterPage extends StatelessWidget {
                             ),
                           ),
                           child: TextField(
+                            controller: emailController,
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Email",
@@ -105,15 +165,14 @@ class RegisterPage extends StatelessWidget {
                                 ),
                               ),
                               child: TextField(
+                                controller: passwordController,
                                 obscureText: value,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Password",
                                   hintStyle: TextStyle(color: Colors.grey[400]),
                                   suffixIcon: IconButton(
-                                    icon: Icon(value
-                                        ? Icons.visibility_off
-                                        : Icons.visibility),
+                                    icon: Icon(value ? Icons.visibility_off : Icons.visibility),
                                     onPressed: () {
                                       _obscurePassword.value = !_obscurePassword.value;
                                     },
@@ -129,15 +188,14 @@ class RegisterPage extends StatelessWidget {
                             return Container(
                               padding: const EdgeInsets.all(8.0),
                               child: TextField(
+                                controller: confirmPasswordController,
                                 obscureText: value,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Confirm Password",
                                   hintStyle: TextStyle(color: Colors.grey[400]),
                                   suffixIcon: IconButton(
-                                    icon: Icon(value
-                                        ? Icons.visibility_off
-                                        : Icons.visibility),
+                                    icon: Icon(value ? Icons.visibility_off : Icons.visibility),
                                     onPressed: () {
                                       _obscureConfirmPassword.value = !_obscureConfirmPassword.value;
                                     },
@@ -164,10 +222,8 @@ class RegisterPage extends StatelessWidget {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                        );
+                        // Call registerUser function on button press
+                        registerUser(context);
                       },
                       child: const Center(
                         child: Text(
