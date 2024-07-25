@@ -6,7 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class Movielist extends StatefulWidget {
-  const Movielist({super.key});
+  final String token; // Add this field to accept the token
+
+  const Movielist({super.key, required this.token}); // Make token required
 
   @override
   State<Movielist> createState() => _MovielistState();
@@ -25,22 +27,18 @@ class _MovielistState extends State<Movielist> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Movie WatchList",
-            style: TextStyle(color: Colors.white)),
+        title: const Text("Movie WatchList", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blueAccent,
         centerTitle: true,
       ),
       body: movies.isEmpty
-          ? const Center(
-              child: Text("No movies"),
-            )
+          ? const Center(child: Text("No movies"))
           : ListView.builder(
               itemCount: movies.length,
               itemBuilder: (BuildContext context, int index) {
                 return Card(
                   elevation: 3,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: ListTile(
                     title: Text(
                       movies[index]['title'],
@@ -50,14 +48,11 @@ class _MovielistState extends State<Movielist> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text('Genre: ${movies[index]['genre']}'),
-                        Text(
-                            'Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}'),
+                        Text('Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}'),
                         if (movies[index]['watchDate'] != null)
-                          Text(
-                              'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}'),
+                          Text('Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}'),
                         if (movies[index]['createdAt'] != null)
-                          Text(
-                              'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}'),
+                          Text('Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}'),
                       ],
                     ),
                     trailing: IconButton(
@@ -81,15 +76,19 @@ class _MovielistState extends State<Movielist> {
   }
 
   void navigateToAddPage() {
-    final route =
-        MaterialPageRoute(builder: (context) => const AddEditMoviePage());
+    final route = MaterialPageRoute(
+        builder: (context) => AddEditMoviePage());
     Navigator.push(context, route);
   }
 
   Future<void> fetchMovies() async {
     final apiUrl = dotenv.env['API_URL'] ?? '';
-    final response =
-        await http.get(Uri.parse('$apiUrl/api/movies'));
+    final response = await http.get(
+      Uri.parse('$apiUrl/api/movies'),
+      headers: {
+        'Authorization': 'Bearer ${widget.token}',
+      },
+    );
 
     if (response.statusCode == 200) {
       setState(() {
@@ -104,7 +103,12 @@ class _MovielistState extends State<Movielist> {
   Future<void> deleteMovie(int id) async {
     final apiUrl = dotenv.env['API_URL'] ?? '';
 
-    final response = await http.delete(Uri.parse('$apiUrl/api/movies/$id'));
+    final response = await http.delete(
+      Uri.parse('$apiUrl/api/movies/$id'),
+      headers: {
+        'Authorization': 'Bearer ${widget.token}',
+      },
+    );
 
     if (response.statusCode == 204) {
       // If deletion is successful, reload the movie list

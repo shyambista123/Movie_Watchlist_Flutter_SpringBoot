@@ -1,10 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'movielist.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(true);
+  final _formKey = GlobalKey<FormState>();
 
-  LoginPage({super.key});
+  Future<void> _login() async {
+  print("Login button pressed");
+  if (_formKey.currentState?.validate() ?? false) {
+    final apiUrl = dotenv.env['API_URL'] ?? '';
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/users/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        }),
+      );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final token = response.body; // Extract token
+
+        print('Token received: $token');
+        if (token.isNotEmpty) {
+          print('Navigating to Movielist');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Movielist(token: token)),
+          );
+        } else {
+          print('No token found in response');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Login failed. No token received.')),
+          );
+        }
+      } else {
+        print('Login failed with status code: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed. Please check your credentials and try again.')),
+        );
+      }
+    } catch (e) {
+      print('Error during login: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred. Please try again later.')),
+      );
+    }
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,95 +102,115 @@ class LoginPage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(30.0),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.2),
-                          blurRadius: 20.0,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(color: Colors.grey[100]!),
-                            ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.2),
+                            blurRadius: 20.0,
+                            offset: const Offset(0, 10),
                           ),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Email or Phone number",
-                              hintStyle: TextStyle(color: Colors.grey[400]),
-                            ),
-                          ),
-                        ),
-                        ValueListenableBuilder<bool>(
-                          valueListenable: _obscureText,
-                          builder: (context, value, child) {
-                            return Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                obscureText: value,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: "Password",
-                                  hintStyle: TextStyle(color: Colors.grey[400]),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(value
-                                        ? Icons.visibility_off
-                                        : Icons.visibility),
-                                    onPressed: () {
-                                      _obscureText.value = !_obscureText.value;
-                                    },
-                                  ),
-                                ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: Colors.grey[100]!),
                               ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Container(
-                    height: 50,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      gradient: const LinearGradient(
-                        colors: [Colors.blue, Colors.blueAccent],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                            ),
+                            child: TextFormField(
+                              controller: _emailController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Email or Phone number",
+                                hintStyle: TextStyle(color: Colors.grey[400]),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your email or phone number';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          ValueListenableBuilder<bool>(
+                            valueListenable: _obscureText,
+                            builder: (context, value, child) {
+                              return Container(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: value,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "Password",
+                                    hintStyle: TextStyle(color: Colors.grey[400]),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(value
+                                          ? Icons.visibility_off
+                                          : Icons.visibility),
+                                      onPressed: () {
+                                        _obscureText.value = !_obscureText.value;
+                                      },
+                                    ),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your password';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                    const SizedBox(height: 30),
+                    GestureDetector(
+                      onTap: _login,
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          gradient: const LinearGradient(
+                            colors: [Colors.blue, Colors.blueAccent],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 70),
-                  const Text(
-                    "Forgot Password?",
-                    style: TextStyle(
-                      color: Colors.blue,
+                    const SizedBox(height: 70),
+                    const Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        color: Colors.blue,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

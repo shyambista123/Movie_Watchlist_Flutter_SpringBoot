@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/screens/addEditMoviePage.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/movielist.dart';
 import 'package:frontend/screens/profilePage.dart';
 import 'package:frontend/screens/register.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load(); // Load environment variables
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Movielist(),
+      home: RegisterPage(),
     );
   }
 }

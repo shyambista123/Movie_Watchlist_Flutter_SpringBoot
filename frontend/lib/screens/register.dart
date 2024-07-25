@@ -20,17 +20,21 @@ class RegisterPage extends StatelessWidget {
     String password = passwordController.text.trim();
     String confirmPassword = confirmPasswordController.text.trim();
 
-    // Validate inputs (you can add more validation as needed)
+    // Validate inputs
     if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      // Handle empty fields
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
       return;
     }
 
-    // Example API endpoint
-    // String apiUrl = 'https://your-backend-api.com/register';
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
     String apiUrl = dotenv.env['API_URL'] ?? '';
     print(apiUrl);
 
@@ -43,20 +47,22 @@ class RegisterPage extends StatelessWidget {
 
     // Make POST request
     try {
-      var response = await http.post(Uri.parse(apiUrl), body: data);
+      var response = await http.post(
+        Uri.parse('$apiUrl/users/register'),
+        body: jsonEncode(data),
+        headers: {'Content-Type': 'application/json'},
+      );
 
       if (response.statusCode == 200) {
-        // Registration successful, handle response as needed
-        // Example: Redirect to login page after registration
-        Navigator.push(
+        // Registration successful
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
       } else {
-        // Registration failed, handle errors
-        // Example: Show error message to user
+        // Registration failed
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed')),
+          SnackBar(content: Text('Registration failed: ${response.body}')),
         );
       }
     } catch (e) {
@@ -225,7 +231,6 @@ class RegisterPage extends StatelessWidget {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        // Call registerUser function on button press
                         registerUser(context);
                       },
                       child: const Center(
