@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/screens/addEditMoviePage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -23,8 +25,9 @@ class _MovielistState extends State<Movielist> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Movie WatchList"),
-        backgroundColor: Colors.greenAccent[400],
+        title: const Text("Movie WatchList",
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blueAccent,
         centerTitle: true,
       ),
       body: movies.isEmpty
@@ -36,7 +39,8 @@ class _MovielistState extends State<Movielist> {
               itemBuilder: (BuildContext context, int index) {
                 return Card(
                   elevation: 3,
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: ListTile(
                     title: Text(
                       movies[index]['title'],
@@ -66,13 +70,26 @@ class _MovielistState extends State<Movielist> {
                 );
               },
             ),
+      floatingActionButton: FloatingActionButton.extended(
+          onPressed: navigateToAddPage,
+          backgroundColor: Colors.blueAccent,
+          label: const Text(
+            "Add Movie",
+            style: TextStyle(color: Colors.white),
+          )),
     );
   }
 
+  void navigateToAddPage() {
+    final route =
+        MaterialPageRoute(builder: (context) => const AddEditMoviePage());
+    Navigator.push(context, route);
+  }
+
   Future<void> fetchMovies() async {
-    // final response = await http.get(Uri.parse('http://192.168.1.64:8080/api/movies'));
+    final apiUrl = dotenv.env['API_URL'] ?? '';
     final response =
-        await http.get(Uri.parse('http://localhost:8080/api/movies'));
+        await http.get(Uri.parse('$apiUrl/api/movies'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -85,10 +102,9 @@ class _MovielistState extends State<Movielist> {
   }
 
   Future<void> deleteMovie(int id) async {
-    final apiUrl = 'http://localhost:8080/api/movies/$id';
-    // final apiUrl = 'http://192.168.1.64:8080/api/movies/$id';
+    final apiUrl = dotenv.env['API_URL'] ?? '';
 
-    final response = await http.delete(Uri.parse(apiUrl));
+    final response = await http.delete(Uri.parse('$apiUrl/api/movies/$id'));
 
     if (response.statusCode == 204) {
       // If deletion is successful, reload the movie list

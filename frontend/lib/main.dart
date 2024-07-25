@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/addEditMoviePage.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/movielist.dart';
 import 'package:frontend/screens/profilePage.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: RegisterPage(),
+      home: Movielist(),
     );
   }
 }

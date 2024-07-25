@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/screens/login.dart';
 
@@ -29,7 +30,9 @@ class RegisterPage extends StatelessWidget {
     }
 
     // Example API endpoint
-    String apiUrl = 'https://your-backend-api.com/register';
+    // String apiUrl = 'https://your-backend-api.com/register';
+    String apiUrl = dotenv.env['API_URL'] ?? '';
+    print(apiUrl);
 
     // Prepare the payload
     Map<String, String> data = {
