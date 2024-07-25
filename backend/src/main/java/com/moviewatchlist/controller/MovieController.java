@@ -19,7 +19,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/movies")
 @RequiredArgsConstructor
-// @CrossOrigin(origins = "http://localhost:46095")
+@CrossOrigin(origins = "http://localhost:45445/")
 //@CrossOrigin(origins = "http://localhost:45181")
 public class MovieController {
 
