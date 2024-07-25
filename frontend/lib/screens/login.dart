@@ -33,11 +33,10 @@ class _LoginPageState extends State<LoginPage> {
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final token = response.body; // Extract token
+        final token = response.body;
 
         print('Token received: $token');
         if (token.isNotEmpty) {
-          print('Navigating to Movielist');
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Movielist(token: token)),
@@ -45,19 +44,19 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           print('No token found in response');
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login failed. No token received.')),
+            const SnackBar(content: Text('Login failed. No token received.')),
           );
         }
       } else {
         print('Login failed with status code: ${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed. Please check your credentials and try again.')),
+          const SnackBar(content: Text('Login failed. Please check your credentials and try again.')),
         );
       }
     } catch (e) {
       print('Error during login: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred. Please try again later.')),
+        const SnackBar(content: Text('An error occurred. Please try again later.')),
       );
     }
   }
