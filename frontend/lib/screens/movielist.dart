@@ -6,9 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class Movielist extends StatefulWidget {
-  final String token; // Add this field to accept the token
+  final String token;
 
-  const Movielist({super.key, required this.token}); // Make token required
+  const Movielist({super.key, required this.token});
 
   @override
   State<Movielist> createState() => _MovielistState();
