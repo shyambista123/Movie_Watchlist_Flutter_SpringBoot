@@ -19,21 +19,22 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/movies")
 @RequiredArgsConstructor
-//@CrossOrigin(origins = "http://localhost:45445/")
-//@CrossOrigin(origins = "http://localhost:45181")
 public class MovieController {
 
     private final MovieService movieService;
     private final UserRepository userRepository;
-    
+
     @GetMapping
-    public List<Movie> getAllMovies() {
-        return movieService.getAllMovies();
+    public ResponseEntity<List<Movie>> getAllMovies() {
+        User currentUser = getCurrentUser();
+        List<Movie> userMovies = movieService.getMoviesByUser(currentUser);
+        return ResponseEntity.ok(userMovies);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
-        Optional<Movie> movie = movieService.getMovieById(id);
+        User currentUser = getCurrentUser();
+        Optional<Movie> movie = movieService.getMovieByIdAndUser(id, currentUser);
         if (movie.isPresent()) {
             return ResponseEntity.ok(movie.get());
         } else {
@@ -43,13 +44,16 @@ public class MovieController {
 
     @PostMapping
     public ResponseEntity<Movie> createMovie(@RequestBody Movie movie) {
+        User currentUser = getCurrentUser();
+        movie.setUser(currentUser); // Assuming Movie entity has a User field
         Movie createdMovie = movieService.saveMovie(movie, getCurrentUser());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdMovie);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
-        Optional<Movie> existingMovieOptional = movieService.getMovieById(id);
+        User currentUser = getCurrentUser();
+        Optional<Movie> existingMovieOptional = movieService.getMovieByIdAndUser(id, currentUser);
 
         if (existingMovieOptional.isPresent()) {
             Movie existingMovie = existingMovieOptional.get();
@@ -58,13 +62,41 @@ public class MovieController {
             existingMovie.setWatched(movie.getWatched());
             existingMovie.setWatchDate(movie.getWatchDate());
 
-            // Update the movie with the current user
             Movie updatedMovie = movieService.saveMovie(existingMovie, getCurrentUser());
-
             return ResponseEntity.ok(updatedMovie);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
+        User currentUser = getCurrentUser();
+        Optional<Movie> existingMovie = movieService.getMovieByIdAndUser(id, currentUser);
+        if (existingMovie.isPresent()) {
+            movieService.deleteMovie(id);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/{id}/watched")
+    public ResponseEntity<Movie> addToWatched(@PathVariable Long id) {
+        User currentUser = getCurrentUser();
+        try {
+            Movie updatedMovie = movieService.addToWatchedAndUser(id, currentUser);
+            return ResponseEntity.ok(updatedMovie);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/watched")
+    public ResponseEntity<List<Movie>> getAllWatchedMovies() {
+        User currentUser = getCurrentUser();
+        List<Movie> watchedMovies = movieService.getAllWatchedMovies(currentUser);
+        return ResponseEntity.ok(watchedMovies);
     }
 
     private UserDetails getCurrentUserDetails() {
@@ -82,35 +114,7 @@ public class MovieController {
 
     private User getCurrentUser() {
         UserDetails userDetails = getCurrentUserDetails();
-        // Assuming UserDetails is your User entity class implementing UserDetails interface
-        // You may need to cast UserDetails to your User entity
         return userRepository.findByEmail(userDetails.getUsername());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
-        Optional<Movie> existingMovie = movieService.getMovieById(id);
-        if (existingMovie.isPresent()) {
-            movieService.deleteMovie(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping("/{id}/watched")
-    public ResponseEntity<Movie> addToWatched(@PathVariable Long id) {
-        try {
-            Movie updatedMovie = movieService.addToWatched(id);
-            return ResponseEntity.ok(updatedMovie);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/watched")
-    public ResponseEntity<List<Movie>> getAllWatchedMovies() {
-        List<Movie> watchedMovies = movieService.getAllWatchedMovies();
-        return ResponseEntity.ok(watchedMovies);
-    }
 }

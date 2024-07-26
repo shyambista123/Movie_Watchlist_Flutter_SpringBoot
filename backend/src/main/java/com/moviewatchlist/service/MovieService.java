@@ -15,16 +15,14 @@ public class MovieService {
 
     private final MovieRepository movieRepository;
 
-    public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
+    public List<Movie> getMoviesByUser(User user) {
+        return movieRepository.findByUser(user);
     }
-
-    public Optional<Movie> getMovieById(Long id) {
-        return movieRepository.findById(id);
+    public Optional<Movie> getMovieByIdAndUser(Long id, User user) {
+        return movieRepository.findByIdAndUser(id, user);
     }
 
     public Movie saveMovie(Movie movie, User user) {
-        movie.setUser(user); // Set the user who is creating the movie
         return movieRepository.save(movie);
     }
 
@@ -32,18 +30,18 @@ public class MovieService {
         movieRepository.deleteById(id);
     }
 
-    public Movie addToWatched(Long id) {
-        Optional<Movie> optionalMovie = movieRepository.findById(id);
+    public Movie addToWatchedAndUser(Long id, User user) {
+        Optional<Movie> optionalMovie = movieRepository.findByIdAndUser(id, user);
         if (optionalMovie.isPresent()) {
             Movie movie = optionalMovie.get();
             movie.setWatched(true);
             return movieRepository.save(movie);
         } else {
-            throw new RuntimeException("Movie not found with id: " + id);
+            throw new RuntimeException("Movie not found with id: " + id + " for user: " + user.getEmail());
         }
     }
 
-    public List<Movie> getAllWatchedMovies() {
+    public List<Movie> getAllWatchedMovies(User user) {
         return movieRepository.findByWatchedTrue();
     }
 
