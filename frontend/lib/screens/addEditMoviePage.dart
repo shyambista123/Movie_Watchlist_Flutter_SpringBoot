@@ -1,7 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/screens/movielist.dart';
+import 'package:http/http.dart' as http;
 
 class AddEditMoviePage extends StatefulWidget {
-  const AddEditMoviePage({super.key});
+  final String token;
+
+  const AddEditMoviePage({Key? key, required this.token}) : super(key: key);
 
   @override
   State<AddEditMoviePage> createState() => _AddEditMoviePageState();
@@ -10,7 +16,7 @@ class AddEditMoviePage extends StatefulWidget {
 class _AddEditMoviePageState extends State<AddEditMoviePage> {
   TextEditingController titleController = TextEditingController();
   TextEditingController genreController = TextEditingController();
-  DateTime watchDate = DateTime.now(); // Initialize with current date/time
+  DateTime watchDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -64,23 +70,20 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: (){
-              print(titleController.text);
-              print(genreController.text);
-              print(watchDate);
-              print("add movie clicked");
-            }, 
-            child: const Center(
-              child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text(
-                            "Add Movie",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+            ElevatedButton(
+              onPressed: addMovie,
+              child: const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    "Add Movie",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
-            ))
+            ),
           ],
         ),
       ),
@@ -95,10 +98,44 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       lastDate: DateTime(2100),
     );
     if (pickedDate != null && pickedDate != watchDate) {
-      // Date selected, update state
       setState(() {
         watchDate = pickedDate;
       });
+    }
+  }
+
+  Future<void> addMovie() async {
+    final baseUrl = dotenv.env['API_URL'];
+    if (baseUrl == null) {
+      // Handle missing API URL
+      return;
+    }
+    final url = Uri.parse('$baseUrl/api/movies');
+    
+    final body = json.encode({
+      'title': titleController.text,
+      'genre': genreController.text,
+      'watchDate': watchDate.toIso8601String(),
+    });
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer ${widget.token}',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Movielist(token: widget.token)),  // Navigate to MovieList
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error adding movie: ${response.statusCode}')),
+      );
     }
   }
 }

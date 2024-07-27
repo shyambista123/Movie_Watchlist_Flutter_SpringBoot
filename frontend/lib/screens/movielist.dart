@@ -77,7 +77,7 @@ class _MovielistState extends State<Movielist> {
 
   void navigateToAddPage() {
     final route = MaterialPageRoute(
-        builder: (context) => AddEditMoviePage());
+        builder: (context) => AddEditMoviePage(token: widget.token));
     Navigator.push(context, route);
   }
 
@@ -95,7 +95,6 @@ class _MovielistState extends State<Movielist> {
         movies = json.decode(response.body);
       });
     } else {
-      // Handle errors
       print('Failed to load movies');
     }
   }

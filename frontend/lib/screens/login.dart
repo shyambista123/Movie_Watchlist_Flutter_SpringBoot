@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/screens/register.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'movielist.dart';
@@ -133,12 +134,12 @@ class _LoginPageState extends State<LoginPage> {
                               controller: _emailController,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
-                                hintText: "Email or Phone number",
+                                hintText: "Email",
                                 hintStyle: TextStyle(color: Colors.grey[400]),
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your email or phone number';
+                                  return 'Please enter your email';
                                 }
                                 return null;
                               },
@@ -204,10 +205,16 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 70),
-                    const Text(
-                      "Forgot Password?",
-                      style: TextStyle(
-                        color: Colors.blue,
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => RegisterPage()));
+                      },
+                      child: const Text(
+                        "Don't have an accout? Create here",
+                        style: TextStyle(
+                          color: Colors.blue,
+                        ),
                       ),
                     ),
                   ],
