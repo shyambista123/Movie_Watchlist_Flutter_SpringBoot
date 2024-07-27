@@ -33,5 +33,14 @@ public class UserController {
         else
             return "Login Failed";
     }
+    @PostMapping("/logout")
+    public String logout(@RequestHeader("Authorization") String token) {
+        // Remove "Bearer " prefix if present
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
 
+        jwtService.blacklistToken(token);
+        return "Logged out successfully";
+    }
 }
