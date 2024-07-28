@@ -8,7 +8,8 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final ValueNotifier<bool> _obscurePassword = ValueNotifier<bool>(true);
   final ValueNotifier<bool> _obscureConfirmPassword = ValueNotifier<bool>(true);
 
@@ -21,7 +22,10 @@ class RegisterPage extends StatelessWidget {
     String confirmPassword = confirmPasswordController.text.trim();
 
     // Validate inputs
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    if (name.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
@@ -38,14 +42,12 @@ class RegisterPage extends StatelessWidget {
     String apiUrl = dotenv.env['API_URL'] ?? '';
     print(apiUrl);
 
-    // Prepare the payload
     Map<String, String> data = {
       'name': name,
       'email': email,
       'password': password,
     };
 
-    // Make POST request
     try {
       var response = await http.post(
         Uri.parse('$apiUrl/users/register'),
@@ -54,19 +56,16 @@ class RegisterPage extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
-        // Registration successful
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
       } else {
-        // Registration failed
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Registration failed: ${response.body}')),
         );
       }
     } catch (e) {
-      // Exception occurred during HTTP request
       print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error occurred')),
@@ -181,9 +180,12 @@ class RegisterPage extends StatelessWidget {
                                   hintText: "Password",
                                   hintStyle: TextStyle(color: Colors.grey[400]),
                                   suffixIcon: IconButton(
-                                    icon: Icon(value ? Icons.visibility_off : Icons.visibility),
+                                    icon: Icon(value
+                                        ? Icons.visibility_off
+                                        : Icons.visibility),
                                     onPressed: () {
-                                      _obscurePassword.value = !_obscurePassword.value;
+                                      _obscurePassword.value =
+                                          !_obscurePassword.value;
                                     },
                                   ),
                                 ),
@@ -204,9 +206,12 @@ class RegisterPage extends StatelessWidget {
                                   hintText: "Confirm Password",
                                   hintStyle: TextStyle(color: Colors.grey[400]),
                                   suffixIcon: IconButton(
-                                    icon: Icon(value ? Icons.visibility_off : Icons.visibility),
+                                    icon: Icon(value
+                                        ? Icons.visibility_off
+                                        : Icons.visibility),
                                     onPressed: () {
-                                      _obscureConfirmPassword.value = !_obscureConfirmPassword.value;
+                                      _obscureConfirmPassword.value =
+                                          !_obscureConfirmPassword.value;
                                     },
                                   ),
                                 ),

@@ -130,7 +130,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
     if (response.statusCode == 200 || response.statusCode == 201) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Movielist(token: widget.token)),  // Navigate to MovieList
+        MaterialPageRoute(builder: (context) => Movielist(token: widget.token)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
