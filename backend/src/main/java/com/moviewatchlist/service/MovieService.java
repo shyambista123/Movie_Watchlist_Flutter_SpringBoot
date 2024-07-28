@@ -6,6 +6,7 @@ import com.moviewatchlist.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,10 @@ public class MovieService {
     }
 
     public Movie saveMovie(Movie movie, User user) {
+        Date watch_date = movie.getWatchDate();
+        if (watch_date != null && watch_date.before(new Date())) {
+            movie.setWatched(true);
+        }
         return movieRepository.save(movie);
     }
 

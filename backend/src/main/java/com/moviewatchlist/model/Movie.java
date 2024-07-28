@@ -18,7 +18,7 @@ public class Movie {
     private Long id;
     private String title;
     private String genre;
-    private Boolean watched;
+    private Boolean watched=false;
     private Date watchDate;
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
