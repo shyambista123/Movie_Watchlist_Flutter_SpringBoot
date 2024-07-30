@@ -34,7 +34,7 @@ class _MovielistState extends State<Movielist> {
         centerTitle: true,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout,color: Colors.white),
             onPressed: () {
               showLogoutConfirmationDialog();
             },
