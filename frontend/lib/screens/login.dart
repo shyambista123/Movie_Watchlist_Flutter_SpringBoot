@@ -19,51 +19,60 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _login() async {
-  print("Login button pressed");
-  if (_formKey.currentState?.validate() ?? false) {
-    final apiUrl = dotenv.env['API_URL'] ?? '';
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl/users/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': _emailController.text,
-          'password': _passwordController.text,
-        }),
-      );
+    // print("Login button pressed");
+    if (_formKey.currentState?.validate() ?? false) {
+      final apiUrl = dotenv.env['API_URL'] ?? '';
+      try {
+        final response = await http.post(
+          Uri.parse('$apiUrl/users/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': _emailController.text,
+            'password': _passwordController.text,
+          }),
+        );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+        // print('Response status: ${response.statusCode}');
+        // print('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        final token = response.body;
+        if (response.statusCode == 200) {
+          final token = response.body;
 
-        print('Token received: $token');
-        if (token.isNotEmpty) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Movielist(token: token)),
-          );
+          print('Token received: $token');
+          if (token.isNotEmpty) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Movielist(token: token)),
+            );
+          } else {
+            // print('No token found in response');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Login failed. No token received.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         } else {
-          print('No token found in response');
+          // print('Login failed with status code: ${response.statusCode}');
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login failed. No token received.')),
+            const SnackBar(
+              content: Text('Login failed. Please check your credentials and try again.'),
+              backgroundColor: Colors.red,
+            ),
           );
         }
-      } else {
-        print('Login failed with status code: ${response.statusCode}');
+      } catch (e) {
+        print('Error during login: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed. Please check your credentials and try again.')),
+          const SnackBar(
+              content: Text('An error occurred. Please try again later.'),
+              backgroundColor: Colors.red)
         );
       }
-    } catch (e) {
-      print('Error during login: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred. Please try again later.')),
-      );
     }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,13 +165,15 @@ class _LoginPageState extends State<LoginPage> {
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Password",
-                                    hintStyle: TextStyle(color: Colors.grey[400]),
+                                    hintStyle:
+                                        TextStyle(color: Colors.grey[400]),
                                     suffixIcon: IconButton(
                                       icon: Icon(value
                                           ? Icons.visibility_off
                                           : Icons.visibility),
                                       onPressed: () {
-                                        _obscureText.value = !_obscureText.value;
+                                        _obscureText.value =
+                                            !_obscureText.value;
                                       },
                                     ),
                                   ),
@@ -206,9 +217,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 70),
                     GestureDetector(
-                      onTap: (){
-                        Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => RegisterPage()));
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterPage()));
                       },
                       child: const Text(
                         "Don't have an accout? Create here",

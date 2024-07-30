@@ -27,14 +27,16 @@ class _MovielistState extends State<Movielist> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text("Movie WatchList",
-            style: TextStyle(color: Colors.white)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.blueAccent,
+        elevation: 0,
         centerTitle: true,
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.logout,color: Colors.white),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () {
               showLogoutConfirmationDialog();
             },
@@ -42,50 +44,128 @@ class _MovielistState extends State<Movielist> {
         ],
       ),
       body: movies.isEmpty
-          ? const Center(child: Text("No movies"))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.movie_creation_outlined,
+                      size: 100, color: Colors.grey),
+                  SizedBox(height: 20),
+                  Text(
+                    "No movies in your watchlist",
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            )
           : ListView.builder(
               itemCount: movies.length,
               itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  elevation: 3,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  child: ListTile(
-                    title: Text(
-                      movies[index]['title'],
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text('Genre: ${movies[index]['genre']}'),
-                        Text(
-                            'Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}'),
-                        if (movies[index]['watchDate'] != null)
-                          Text(
-                              'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}'),
-                        if (movies[index]['createdAt'] != null)
-                          Text(
-                              'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}'),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.blueAccent,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              topRight: Radius.circular(15),
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.movie,
+                              size: 80,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                movies[index]['title'],
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              _buildInfoRow(Icons.category,
+                                  'Genre: ${movies[index]['genre']}'),
+                              _buildInfoRow(
+                                Icons.visibility,
+                                'Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}',
+                              ),
+                              if (movies[index]['watchDate'] != null)
+                                _buildInfoRow(
+                                  Icons.calendar_today,
+                                  'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}',
+                                ),
+                              if (movies[index]['createdAt'] != null)
+                                _buildInfoRow(
+                                  Icons.access_time,
+                                  'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}',
+                                ),
+                            ],
+                          ),
+                        ),
+                        ButtonBar(
+                          alignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              child: Text('Edit'),
+                              onPressed: () {
+                                // TODO: Implement edit functionality
+                              },
+                            ),
+                            TextButton(
+                              child: Text('Delete',
+                                  style: TextStyle(color: Colors.red)),
+                              onPressed: () {
+                                confirmDeleteDialog(movies[index]['id']);
+                              },
+                            ),
+                          ],
+                        ),
                       ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        confirmDeleteDialog(movies[index]['id']);
-                      },
                     ),
                   ),
                 );
               },
             ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: navigateToAddPage,
-          backgroundColor: Colors.blueAccent,
-          label: const Text(
-            "Add Movie",
-            style: TextStyle(color: Colors.white),
-          )),
+        onPressed: navigateToAddPage,
+        backgroundColor: Colors.blueAccent,
+        icon: Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          "Add Movie",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.blueAccent),
+          SizedBox(width: 8),
+          Text(text, style: TextStyle(fontSize: 16)),
+        ],
+      ),
     );
   }
 
@@ -203,10 +283,10 @@ class _MovielistState extends State<Movielist> {
       );
 
       if (response.statusCode == 200) {
-            Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => LoginPage()),
-        (Route<dynamic> route) => false,
-      );
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => LoginPage()),
+          (Route<dynamic> route) => false,
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
