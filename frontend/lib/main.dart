@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/screens/register.dart';
 
 Future<void> main() async {
-  await dotenv.load(); // Load environment variables
+  await dotenv.load();
   runApp(const MyApp());
 }
 
