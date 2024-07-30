@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/screens/addEditMoviePage.dart';
+import 'package:frontend/screens/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -27,9 +28,18 @@ class _MovielistState extends State<Movielist> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Movie WatchList", style: TextStyle(color: Colors.white)),
+        title: const Text("Movie WatchList",
+            style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blueAccent,
         centerTitle: true,
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              showLogoutConfirmationDialog();
+            },
+          ),
+        ],
       ),
       body: movies.isEmpty
           ? const Center(child: Text("No movies"))
@@ -38,7 +48,8 @@ class _MovielistState extends State<Movielist> {
               itemBuilder: (BuildContext context, int index) {
                 return Card(
                   elevation: 3,
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: ListTile(
                     title: Text(
                       movies[index]['title'],
@@ -48,11 +59,14 @@ class _MovielistState extends State<Movielist> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text('Genre: ${movies[index]['genre']}'),
-                        Text('Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}'),
+                        Text(
+                            'Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}'),
                         if (movies[index]['watchDate'] != null)
-                          Text('Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}'),
+                          Text(
+                              'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}'),
                         if (movies[index]['createdAt'] != null)
-                          Text('Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}'),
+                          Text(
+                              'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}'),
                       ],
                     ),
                     trailing: IconButton(
@@ -147,5 +161,67 @@ class _MovielistState extends State<Movielist> {
       },
     );
   }
-}
 
+  Future<void> showLogoutConfirmationDialog() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                logout();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void logout() async {
+    final apiUrl = dotenv.env['API_URL'] ?? '';
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl/users/logout'),
+        headers: {
+          'Authorization': 'Bearer ${widget.token}',
+        },
+      );
+
+      if (response.statusCode == 200) {
+            Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => LoginPage()),
+        (Route<dynamic> route) => false,
+      );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Logout failed. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('An error occurred. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+}
