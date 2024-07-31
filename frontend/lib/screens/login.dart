@@ -18,6 +18,61 @@ class _LoginPageState extends State<LoginPage> {
   final ValueNotifier<bool> _obscureText = ValueNotifier<bool>(true);
   final _formKey = GlobalKey<FormState>();
 
+  Future<void> _login() async {
+    // print("Login button pressed");
+    if (_formKey.currentState?.validate() ?? false) {
+      final apiUrl = dotenv.env['API_URL'] ?? '';
+      try {
+        final response = await http.post(
+          Uri.parse('$apiUrl/users/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': _emailController.text,
+            'password': _passwordController.text,
+          }),
+        );
+
+        // print('Response status: ${response.statusCode}');
+        // print('Response body: ${response.body}');
+
+        if (response.statusCode == 200) {
+          final token = response.body;
+
+          print('Token received: $token');
+          if (token.isNotEmpty) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Movielist(token: token)),
+            );
+          } else {
+            // print('No token found in response');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Login failed. No token received.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } else {
+          // print('Login failed with status code: ${response.statusCode}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login failed. Please check your credentials and try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        print('Error during login: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('An error occurred. Please try again later.'),
+              backgroundColor: Colors.red)
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,52 +238,5 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
-  }
-
-  Future<void> _login() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final apiUrl = dotenv.env['API_URL'] ?? '';
-      try {
-        final response = await http.post(
-          Uri.parse('$apiUrl/users/login'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'email': _emailController.text,
-            'password': _passwordController.text,
-          }),
-        );
-        if (response.statusCode == 200) {
-          final token = response.body;
-
-          print('Token received: $token');
-          if (token.isNotEmpty) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Movielist(token: token)),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Login failed. No token received.'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                  'Login failed. Please check your credentials and try again.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        print('Error during login: $e');
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('An error occurred. Please try again later.'),
-            backgroundColor: Colors.red));
-      }
-    }
   }
 }

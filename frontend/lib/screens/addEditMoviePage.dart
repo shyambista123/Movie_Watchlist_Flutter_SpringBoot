@@ -24,8 +24,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Movie",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text("Add Movie", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
         elevation: 0,
@@ -183,7 +182,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       return;
     }
     final url = Uri.parse('$baseUrl/api/movies');
-
+    
     final body = json.encode({
       'title': titleController.text,
       'genre': genreController.text,
@@ -203,8 +202,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) => Movielist(token: widget.token)),
+          MaterialPageRoute(builder: (context) => Movielist(token: widget.token)),
         );
       } else {
         throw Exception('Failed to add movie');
