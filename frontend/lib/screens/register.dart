@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:frontend/screens/login.dart';
 
 class RegisterPage extends StatelessWidget {
+  RegisterPage({super.key});
+
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -12,66 +14,6 @@ class RegisterPage extends StatelessWidget {
       TextEditingController();
   final ValueNotifier<bool> _obscurePassword = ValueNotifier<bool>(true);
   final ValueNotifier<bool> _obscureConfirmPassword = ValueNotifier<bool>(true);
-
-  RegisterPage({Key? key}) : super(key: key);
-
-  Future<void> registerUser(BuildContext context) async {
-    String name = nameController.text.trim();
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    String confirmPassword = confirmPasswordController.text.trim();
-
-    // Validate inputs
-    if (name.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields')),
-      );
-      return;
-    }
-
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Passwords do not match')),
-      );
-      return;
-    }
-
-    String apiUrl = dotenv.env['API_URL'] ?? '';
-    print(apiUrl);
-
-    Map<String, String> data = {
-      'name': name,
-      'email': email,
-      'password': password,
-    };
-
-    try {
-      var response = await http.post(
-        Uri.parse('$apiUrl/users/register'),
-        body: jsonEncode(data),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registration failed: ${response.body}')),
-        );
-      }
-    } catch (e) {
-      print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error occurred')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -271,5 +213,62 @@ class RegisterPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> registerUser(BuildContext context) async {
+    String name = nameController.text.trim();
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    if (name.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    String apiUrl = dotenv.env['API_URL'] ?? '';
+    print(apiUrl);
+
+    Map<String, String> data = {
+      'name': name,
+      'email': email,
+      'password': password,
+    };
+
+    try {
+      var response = await http.post(
+        Uri.parse('$apiUrl/users/register'),
+        body: jsonEncode(data),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration failed: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error occurred')),
+      );
+    }
   }
 }

@@ -186,7 +186,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _login() async {
-    // print("Login button pressed");
     if (_formKey.currentState?.validate() ?? false) {
       final apiUrl = dotenv.env['API_URL'] ?? '';
       try {
@@ -198,10 +197,6 @@ class _LoginPageState extends State<LoginPage> {
             'password': _passwordController.text,
           }),
         );
-
-        // print('Response status: ${response.statusCode}');
-        // print('Response body: ${response.body}');
-
         if (response.statusCode == 200) {
           final token = response.body;
 
@@ -212,7 +207,6 @@ class _LoginPageState extends State<LoginPage> {
               MaterialPageRoute(builder: (context) => Movielist(token: token)),
             );
           } else {
-            // print('No token found in response');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Login failed. No token received.'),
@@ -221,21 +215,19 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         } else {
-          // print('Login failed with status code: ${response.statusCode}');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Login failed. Please check your credentials and try again.'),
+              content: Text(
+                  'Login failed. Please check your credentials and try again.'),
               backgroundColor: Colors.red,
             ),
           );
         }
       } catch (e) {
         print('Error during login: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('An error occurred. Please try again later.'),
-              backgroundColor: Colors.red)
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('An error occurred. Please try again later.'),
+            backgroundColor: Colors.red));
       }
     }
   }
