@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/auth_service.dart';
 import 'package:frontend/screens/addEditMoviePage.dart';
 import 'package:frontend/screens/login.dart';
+import 'package:frontend/screens/profilePage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class Movielist extends StatefulWidget {
-  final String token;
-
-  const Movielist({super.key, required this.token});
+  const Movielist({super.key});
 
   @override
   State<Movielist> createState() => _MovielistState();
@@ -17,11 +17,13 @@ class Movielist extends StatefulWidget {
 
 class _MovielistState extends State<Movielist> {
   List<dynamic> movies = [];
+  late AuthService _authService;
 
   @override
   void initState() {
     super.initState();
-    fetchMovies();
+    _authService = AuthService();
+    _fetchTokenAndMovies();
   }
 
   @override
@@ -144,13 +146,29 @@ class _MovielistState extends State<Movielist> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: navigateToAddPage,
-        backgroundColor: Colors.blueAccent,
-        icon: Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          "Add Movie",
-          style: TextStyle(color: Colors.white),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.blueAccent,
+        child: Container(
+          height: 60.0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                icon: Icon(Icons.home, color: Colors.white),
+                onPressed: () {
+                  //Movielist 
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.add, color: Colors.white),
+                onPressed: navigateToAddPage,
+              ),
+              IconButton(
+                icon: Icon(Icons.person, color: Colors.white),
+                onPressed: navigateToProfilePage,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -169,18 +187,37 @@ class _MovielistState extends State<Movielist> {
     );
   }
 
-  void navigateToAddPage() {
-    final route = MaterialPageRoute(
-        builder: (context) => AddEditMoviePage(token: widget.token));
-    Navigator.push(context, route);
+  void navigateToProfilePage() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
   }
 
-  Future<void> fetchMovies() async {
+  void navigateToAddPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditMoviePage(),
+      ),
+    );
+  }
+
+  Future<void> _fetchTokenAndMovies() async {
+    final token = await _authService.getToken();
+    if (token != null) {
+      await fetchMovies(token);
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    }
+  }
+
+  Future<void> fetchMovies(String token) async {
     final apiUrl = dotenv.env['API_URL'] ?? '';
     final response = await http.get(
       Uri.parse('$apiUrl/api/movies'),
       headers: {
-        'Authorization': 'Bearer ${widget.token}',
+        'Authorization': 'Bearer $token',
       },
     );
 
@@ -194,20 +231,19 @@ class _MovielistState extends State<Movielist> {
   }
 
   Future<void> deleteMovie(int id) async {
+    final token = await _authService.getToken();
     final apiUrl = dotenv.env['API_URL'] ?? '';
 
     final response = await http.delete(
       Uri.parse('$apiUrl/api/movies/$id'),
       headers: {
-        'Authorization': 'Bearer ${widget.token}',
+        'Authorization': 'Bearer $token',
       },
     );
 
     if (response.statusCode == 204) {
-      // If deletion is successful, reload the movie list
-      await fetchMovies();
+      await fetchMovies(token!);
     } else {
-      // TODO: Handle errors
       print('Failed to delete movie');
     }
   }
@@ -273,16 +309,18 @@ class _MovielistState extends State<Movielist> {
   }
 
   void logout() async {
+    final token = await _authService.getToken();
     final apiUrl = dotenv.env['API_URL'] ?? '';
     try {
       final response = await http.post(
         Uri.parse('$apiUrl/users/logout'),
         headers: {
-          'Authorization': 'Bearer ${widget.token}',
+          'Authorization': 'Bearer $token',
         },
       );
 
       if (response.statusCode == 200) {
+        await _authService.deleteToken();
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => LoginPage()),
           (Route<dynamic> route) => false,

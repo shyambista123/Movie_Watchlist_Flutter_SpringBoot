@@ -1,14 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/auth_service.dart';
 import 'package:frontend/screens/movielist.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class AddEditMoviePage extends StatefulWidget {
-  final String token;
-
-  const AddEditMoviePage({Key? key, required this.token}) : super(key: key);
+  const AddEditMoviePage({super.key});
 
   @override
   State<AddEditMoviePage> createState() => _AddEditMoviePageState();
@@ -181,6 +180,17 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       );
       return;
     }
+
+    final authService = AuthService();
+    final token = await authService.getToken();
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No token found. Please log in again.')),
+      );
+      return;
+    }
+
     final url = Uri.parse('$baseUrl/api/movies');
     
     final body = json.encode({
@@ -193,7 +203,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       final response = await http.post(
         url,
         headers: {
-          'Authorization': 'Bearer ${widget.token}',
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
         body: body,
@@ -202,7 +212,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => Movielist(token: widget.token)),
+          MaterialPageRoute(builder: (context) => Movielist()),
         );
       } else {
         throw Exception('Failed to add movie');
