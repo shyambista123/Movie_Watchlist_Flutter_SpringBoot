@@ -127,9 +127,7 @@ class _MovielistState extends State<Movielist> {
                           children: [
                             TextButton(
                               child: Text('Edit'),
-                              onPressed: () {
-                                // TODO: Implement edit functionality
-                              },
+                              onPressed: navigateToEditPage,
                             ),
                             TextButton(
                               child: Text('Delete',
@@ -185,6 +183,10 @@ class _MovielistState extends State<Movielist> {
         ],
       ),
     );
+  }
+
+  void navigateToEditPage(){
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> AddEditMoviePage()));
   }
 
   void navigateToProfilePage() {
