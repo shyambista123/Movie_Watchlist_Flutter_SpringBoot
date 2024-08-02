@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/register.dart';
 
 Future<void> main() async {
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: RegisterPage(),
+      home: LoginPage(),
     );
   }
 }

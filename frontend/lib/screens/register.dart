@@ -19,6 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final ValueNotifier<bool> _obscurePassword = ValueNotifier<bool>(true);
   final ValueNotifier<bool> _obscureConfirmPassword = ValueNotifier<bool>(true);
   final AuthService _authService = AuthService();
+  bool _isRedirecting = false;
 
   @override
   void initState() {
@@ -27,12 +28,17 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _checkIfLoggedIn() async {
+    if (_isRedirecting) return; // Prevent multiple redirections
+    _isRedirecting = true;
+
     final token = await _authService.getToken();
     if (token != null) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Movielist()),
       );
+    } else {
+      _isRedirecting = false; // Reset redirect state if no token is found
     }
   }
 
