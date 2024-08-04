@@ -14,5 +14,4 @@ spring:
     address: 192.168.1.67
 
 jwt:
-  expiration: 60000
-  # expiration: 3600000
+  expiration: 3600000
