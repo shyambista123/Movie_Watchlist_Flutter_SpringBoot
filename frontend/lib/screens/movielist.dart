@@ -31,8 +31,10 @@ class _MovielistState extends State<Movielist> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text("Movie WatchList",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Movie WatchList",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.blueAccent,
         elevation: 0,
         centerTitle: true,
@@ -45,105 +47,104 @@ class _MovielistState extends State<Movielist> {
           ),
         ],
       ),
-      body: movies.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.movie_creation_outlined,
-                      size: 100, color: Colors.grey),
-                  SizedBox(height: 20),
-                  Text(
-                    "No movies in your watchlist",
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              itemCount: movies.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+      body: RefreshIndicator(
+        onRefresh: _fetchMovies,
+        child: movies.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.movie_creation_outlined, size: 100, color: Colors.grey),
+                    SizedBox(height: 20),
+                    Text(
+                      "No movies in your watchlist",
+                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                     ),
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              topRight: Radius.circular(15),
+                  ],
+                ),
+              )
+            : ListView.builder(
+                itemCount: movies.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.blueAccent,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(15),
+                                topRight: Radius.circular(15),
+                              ),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.movie,
+                                size: 80,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                          child: Center(
-                            child: Icon(
-                              Icons.movie,
-                              size: 80,
-                              color: Colors.white,
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  movies[index]['title'],
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                _buildInfoRow(Icons.category, 'Genre: ${movies[index]['genre']}'),
+                                _buildInfoRow(
+                                  Icons.visibility,
+                                  'Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}',
+                                ),
+                                if (movies[index]['watchDate'] != null)
+                                  _buildInfoRow(
+                                    Icons.calendar_today,
+                                    'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}',
+                                  ),
+                                if (movies[index]['createdAt'] != null)
+                                  _buildInfoRow(
+                                    Icons.access_time,
+                                    'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}',
+                                  ),
+                              ],
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          ButtonBar(
+                            alignment: MainAxisAlignment.end,
                             children: [
-                              Text(
-                                movies[index]['title'],
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              TextButton(
+                                child: Text('Edit'),
+                                onPressed: navigateToEditPage,
                               ),
-                              SizedBox(height: 8),
-                              _buildInfoRow(Icons.category,
-                                  'Genre: ${movies[index]['genre']}'),
-                              _buildInfoRow(
-                                Icons.visibility,
-                                'Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}',
+                              TextButton(
+                                child: Text('Delete', style: TextStyle(color: Colors.red)),
+                                onPressed: () {
+                                  confirmDeleteDialog(movies[index]['id']);
+                                },
                               ),
-                              if (movies[index]['watchDate'] != null)
-                                _buildInfoRow(
-                                  Icons.calendar_today,
-                                  'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}',
-                                ),
-                              if (movies[index]['createdAt'] != null)
-                                _buildInfoRow(
-                                  Icons.access_time,
-                                  'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}',
-                                ),
                             ],
                           ),
-                        ),
-                        ButtonBar(
-                          alignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              child: Text('Edit'),
-                              onPressed: navigateToEditPage,
-                            ),
-                            TextButton(
-                              child: Text('Delete',
-                                  style: TextStyle(color: Colors.red)),
-                              onPressed: () {
-                                confirmDeleteDialog(movies[index]['id']);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+      ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.blueAccent,
         child: Container(
@@ -154,7 +155,7 @@ class _MovielistState extends State<Movielist> {
               IconButton(
                 icon: Icon(Icons.home, color: Colors.white),
                 onPressed: () {
-                  //Movielist 
+                  // Movielist 
                 },
               ),
               IconButton(
@@ -185,8 +186,8 @@ class _MovielistState extends State<Movielist> {
     );
   }
 
-  void navigateToEditPage(){
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> AddEditMoviePage()));
+  void navigateToEditPage() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => AddEditMoviePage()));
   }
 
   void navigateToProfilePage() {
@@ -205,7 +206,7 @@ class _MovielistState extends State<Movielist> {
   Future<void> _fetchTokenAndMovies() async {
     final token = await _authService.getToken();
     if (token != null) {
-      await fetchMovies(token);
+      await _fetchMovies();
     } else {
       Navigator.pushReplacement(
         context,
@@ -214,7 +215,8 @@ class _MovielistState extends State<Movielist> {
     }
   }
 
-  Future<void> fetchMovies(String token) async {
+  Future<void> _fetchMovies() async {
+    final token = await _authService.getToken();
     final apiUrl = dotenv.env['API_URL'] ?? '';
     final response = await http.get(
       Uri.parse('$apiUrl/api/movies'),
@@ -244,7 +246,7 @@ class _MovielistState extends State<Movielist> {
     );
 
     if (response.statusCode == 204) {
-      await fetchMovies(token!);
+      await _fetchMovies();
     } else {
       print('Failed to delete movie');
     }

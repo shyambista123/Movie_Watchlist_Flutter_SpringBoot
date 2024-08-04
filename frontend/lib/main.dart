@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/auth_service.dart';
 import 'package:frontend/screens/login.dart';
 
 Future<void> main() async {
   await dotenv.load();
+    WidgetsFlutterBinding.ensureInitialized();
+
+  final authService = AuthService();
+  await authService.checkAndDeleteExpiredToken();
+
   runApp(const MyApp());
 }
 
