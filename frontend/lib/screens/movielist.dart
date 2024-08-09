@@ -127,7 +127,7 @@ class _MovielistState extends State<Movielist> {
                               ],
                             ),
                           ),
-                          ButtonBar(
+                          ButtonBar( 
                             alignment: MainAxisAlignment.end,
                             children: [
                               TextButton(
