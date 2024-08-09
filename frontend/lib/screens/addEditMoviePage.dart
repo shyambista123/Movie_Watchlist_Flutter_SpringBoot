@@ -7,219 +7,166 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 class AddEditMoviePage extends StatefulWidget {
-  const AddEditMoviePage({super.key});
+  final String? movieId;
+  final Map<String, dynamic>? movieData;
+
+  const AddEditMoviePage({this.movieId, this.movieData, Key? key}) : super(key: key);
 
   @override
-  State<AddEditMoviePage> createState() => _AddEditMoviePageState();
+  _AddEditMoviePageState createState() => _AddEditMoviePageState();
 }
 
 class _AddEditMoviePageState extends State<AddEditMoviePage> {
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController titleController = TextEditingController();
-  TextEditingController genreController = TextEditingController();
-  DateTime watchDate = DateTime.now();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController genreController = TextEditingController();
+  DateTime? watchDate;
+  bool watched = false;
+  bool isEditMode = false;
+  late AuthService _authService;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService();
+
+    // Check if we are in edit mode
+    if (widget.movieData != null) {
+      isEditMode = true;
+      titleController.text = widget.movieData!['title'] ?? '';
+      genreController.text = widget.movieData!['genre'] ?? '';
+      watched = widget.movieData!['watched'] ?? false;
+
+      if (widget.movieData!['watchDate'] != null) {
+        watchDate = DateTime.parse(widget.movieData!['watchDate']);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Movie", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        centerTitle: true,
+        title: Text(isEditMode ? 'Edit Movie' : 'Add Movie'),
         backgroundColor: Colors.blueAccent,
-        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildTextField(
-                  controller: titleController,
-                  label: "Movie Title",
-                  icon: Icons.movie,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a movie title';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildTextField(
-                  controller: genreController,
-                  label: "Genre",
-                  icon: Icons.category,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a genre';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                _buildDatePicker(),
-                const SizedBox(height: 40),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    "Add Movie",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(labelText: 'Title'),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required String? Function(String?) validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: Colors.blueAccent),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.blueAccent),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.blueAccent, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      validator: validator,
-    );
-  }
-
-  Widget _buildDatePicker() {
-    return InkWell(
-      onTap: () => _selectDate(context),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: "Watch Date",
-          prefixIcon: Icon(Icons.calendar_today, color: Colors.blueAccent),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.blueAccent),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.blueAccent, width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-        child: Text(
-          DateFormat('MMMM d, y').format(watchDate),
-          style: TextStyle(fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: watchDate,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Colors.blueAccent,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
+            TextField(
+              controller: genreController,
+              decoration: InputDecoration(labelText: 'Genre'),
             ),
-          ),
-          child: child!,
-        );
-      },
+            CheckboxListTile(
+              title: Text('Watched'),
+              value: watched,
+              onChanged: (bool? value) {
+                setState(() {
+                  watched = value ?? false;
+                });
+              },
+            ),
+            TextField(
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'Watch Date',
+                hintText: watchDate != null
+                    ? DateFormat('dd/MM/yyyy').format(watchDate!)
+                    : 'Select Date',
+              ),
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: watchDate ?? DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2101),
+                );
+                if (pickedDate != null) {
+                  setState(() {
+                    watchDate = pickedDate;
+                  });
+                }
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _saveOrUpdateMovie,
+              child: Text(isEditMode ? 'Update' : 'Save'),
+            ),
+          ],
+        ),
+      ),
     );
-    if (pickedDate != null && pickedDate != watchDate) {
-      setState(() {
-        watchDate = pickedDate;
-      });
-    }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      addMovie();
-    }
-  }
+  Future<void> _saveOrUpdateMovie() async {
+    final String title = titleController.text;
+    final String genre = genreController.text;
 
-  Future<void> addMovie() async {
-    final baseUrl = dotenv.env['API_URL'];
-    if (baseUrl == null) {
+    if (title.isEmpty || genre.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('API URL is not configured')),
+        SnackBar(
+          content: Text('Please fill in all fields'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
-    final authService = AuthService();
-    final token = await authService.getToken();
+    final token = await _authService.getToken();
+    final apiUrl = dotenv.env['API_URL'] ?? '';
 
-    if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No token found. Please log in again.')),
-      );
-      return;
-    }
+    final movieData = {
+      'title': title,
+      'genre': genre,
+      'watched': watched,
+      'watchDate': watchDate != null ? DateFormat('yyyy-MM-dd').format(watchDate!) : null,
+    };
 
-    final url = Uri.parse('$baseUrl/api/movies');
-    
-    final body = json.encode({
-      'title': titleController.text,
-      'genre': genreController.text,
-      'watchDate': watchDate.toIso8601String(),
-    });
+    http.Response response;
 
-    try {
-      final response = await http.post(
-        url,
+    if (isEditMode) {
+      // Update existing movie
+      response = await http.put(
+        Uri.parse('$apiUrl/api/movies/${widget.movieId}'),
         headers: {
-          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
-        body: body,
+        body: json.encode(movieData),
       );
+    } else {
+      // Create new movie
+      response = await http.post(
+        Uri.parse('$apiUrl/api/movies'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode(movieData),
+      );
+    }
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Movielist()),
-        );
-      } else {
-        throw Exception('Failed to add movie');
-      }
-    } catch (e) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding movie: $e')),
+        SnackBar(
+          content: Text(isEditMode ? 'Movie updated successfully' : 'Movie added successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Movielist()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to save movie. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }

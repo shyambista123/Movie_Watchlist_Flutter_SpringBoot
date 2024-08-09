@@ -54,7 +54,8 @@ class _MovielistState extends State<Movielist> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.movie_creation_outlined, size: 100, color: Colors.grey),
+                    Icon(Icons.movie_creation_outlined,
+                        size: 100, color: Colors.grey),
                     SizedBox(height: 20),
                     Text(
                       "No movies in your watchlist",
@@ -66,8 +67,10 @@ class _MovielistState extends State<Movielist> {
             : ListView.builder(
                 itemCount: movies.length,
                 itemBuilder: (BuildContext context, int index) {
+                  final movie = movies[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Card(
                       elevation: 5,
                       shape: RoundedRectangleBorder(
@@ -98,27 +101,28 @@ class _MovielistState extends State<Movielist> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  movies[index]['title'],
+                                  movie['title'],
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 SizedBox(height: 8),
-                                _buildInfoRow(Icons.category, 'Genre: ${movies[index]['genre']}'),
+                                _buildInfoRow(
+                                    Icons.category, 'Genre: ${movie['genre']}'),
                                 _buildInfoRow(
                                   Icons.visibility,
-                                  'Watched: ${movies[index]['watched'] ? 'Yes' : 'No'}',
+                                  'Watched: ${movie['watched'] ? 'Yes' : 'No'}',
                                 ),
-                                if (movies[index]['watchDate'] != null)
+                                if (movie['watchDate'] != null)
                                   _buildInfoRow(
                                     Icons.calendar_today,
-                                    'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['watchDate']))}',
+                                    'Watch Date: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movie['watchDate']))}',
                                   ),
-                                if (movies[index]['createdAt'] != null)
+                                if (movie['createdAt'] != null)
                                   _buildInfoRow(
                                     Icons.access_time,
-                                    'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movies[index]['createdAt']))}',
+                                    'Created At: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(movie['createdAt']))}',
                                   ),
                               ],
                             ),
@@ -128,12 +132,14 @@ class _MovielistState extends State<Movielist> {
                             children: [
                               TextButton(
                                 child: Text('Edit'),
-                                onPressed: navigateToEditPage,
+                                onPressed: () =>
+                                    navigateToEditPage(movie['id'], movie),
                               ),
                               TextButton(
-                                child: Text('Delete', style: TextStyle(color: Colors.red)),
+                                child: Text('Delete',
+                                    style: TextStyle(color: Colors.red)),
                                 onPressed: () {
-                                  confirmDeleteDialog(movies[index]['id']);
+                                  confirmDeleteDialog(movie['id']);
                                 },
                               ),
                             ],
@@ -155,7 +161,7 @@ class _MovielistState extends State<Movielist> {
               IconButton(
                 icon: Icon(Icons.home, color: Colors.white),
                 onPressed: () {
-                  // Movielist 
+                  // Stay on the current page
                 },
               ),
               IconButton(
@@ -186,12 +192,21 @@ class _MovielistState extends State<Movielist> {
     );
   }
 
-  void navigateToEditPage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => AddEditMoviePage()));
+  void navigateToEditPage(String movieId, Map<String, dynamic> movieData) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddEditMoviePage(
+          movieId: movieId,
+          movieData: movieData,
+        ),
+      ),
+    );
   }
 
   void navigateToProfilePage() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => ProfilePage()));
   }
 
   void navigateToAddPage() {
