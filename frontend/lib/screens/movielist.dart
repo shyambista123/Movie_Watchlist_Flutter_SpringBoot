@@ -192,12 +192,12 @@ class _MovielistState extends State<Movielist> {
     );
   }
 
-  void navigateToEditPage(String movieId, Map<String, dynamic> movieData) {
+  void navigateToEditPage(dynamic movieId, Map<String, dynamic> movieData) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AddEditMoviePage(
-          movieId: movieId,
+          movieId: movieId.toString(), // Convert to String if it's an int
           movieData: movieData,
         ),
       ),
