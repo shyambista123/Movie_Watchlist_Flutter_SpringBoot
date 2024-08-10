@@ -20,7 +20,6 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController genreController = TextEditingController();
   DateTime? watchDate;
-  bool watched = false;
   bool isEditMode = false;
   late AuthService _authService;
 
@@ -29,12 +28,10 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
     super.initState();
     _authService = AuthService();
 
-    // Check if we are in edit mode
     if (widget.movieData != null) {
       isEditMode = true;
       titleController.text = widget.movieData!['title'] ?? '';
       genreController.text = widget.movieData!['genre'] ?? '';
-      watched = widget.movieData!['watched'] ?? false;
 
       if (widget.movieData!['watchDate'] != null) {
         watchDate = DateTime.parse(widget.movieData!['watchDate']);
@@ -49,55 +46,100 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
         title: Text(isEditMode ? 'Edit Movie' : 'Add Movie'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: InputDecoration(labelText: 'Title'),
-            ),
-            TextField(
-              controller: genreController,
-              decoration: InputDecoration(labelText: 'Genre'),
-            ),
-            CheckboxListTile(
-              title: Text('Watched'),
-              value: watched,
-              onChanged: (bool? value) {
-                setState(() {
-                  watched = value ?? false;
-                });
-              },
-            ),
-            TextField(
-              readOnly: true,
-              decoration: InputDecoration(
-                labelText: 'Watch Date',
-                hintText: watchDate != null
-                    ? DateFormat('dd/MM/yyyy').format(watchDate!)
-                    : 'Select Date',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildTextField(
+                controller: titleController,
+                label: 'Title',
+                icon: Icons.movie,
               ),
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: watchDate ?? DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2101),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    watchDate = pickedDate;
-                  });
-                }
-              },
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _saveOrUpdateMovie,
-              child: Text(isEditMode ? 'Update' : 'Save'),
-            ),
-          ],
+              SizedBox(height: 20),
+              _buildTextField(
+                controller: genreController,
+                label: 'Genre',
+                icon: Icons.category,
+              ),
+              SizedBox(height: 20),
+              _buildDateField(),
+              SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: _saveOrUpdateMovie,
+                child: Text(
+                  isEditMode ? 'Update Movie' : 'Save Movie',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.blueAccent),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateField() {
+    return InkWell(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: watchDate ?? DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2101),
+        );
+        if (pickedDate != null) {
+          setState(() {
+            watchDate = pickedDate;
+          });
+        }
+      },
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Watch Date',
+          prefixIcon: Icon(Icons.calendar_today, color: Colors.blueAccent),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+          ),
+        ),
+        child: Text(
+          watchDate != null
+              ? DateFormat('dd/MM/yyyy').format(watchDate!)
+              : 'Select Date',
+          style: TextStyle(fontSize: 16),
         ),
       ),
     );
@@ -108,12 +150,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
     final String genre = genreController.text;
 
     if (title.isEmpty || genre.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please fill in all fields'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Please fill in all fields', Colors.red);
       return;
     }
 
@@ -123,14 +160,12 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
     final movieData = {
       'title': title,
       'genre': genre,
-      'watched': watched,
       'watchDate': watchDate != null ? DateFormat('yyyy-MM-dd').format(watchDate!) : null,
     };
 
     http.Response response;
 
     if (isEditMode) {
-      // Update existing movie
       response = await http.put(
         Uri.parse('$apiUrl/api/movies/${widget.movieId}'),
         headers: {
@@ -140,7 +175,6 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
         body: json.encode(movieData),
       );
     } else {
-      // Create new movie
       response = await http.post(
         Uri.parse('$apiUrl/api/movies'),
         headers: {
@@ -152,22 +186,28 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
     }
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isEditMode ? 'Movie updated successfully' : 'Movie added successfully'),
-          backgroundColor: Colors.green,
-        ),
+      _showSnackBar(
+        isEditMode ? 'Movie updated successfully' : 'Movie added successfully',
+        Colors.green,
       );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => Movielist()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to save movie. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Failed to save movie. Please try again.', Colors.red);
     }
+  }
+
+  void _showSnackBar(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
   }
 }
