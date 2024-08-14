@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:frontend/auth_service.dart';
+import 'package:frontend/authService.dart';
 import 'package:frontend/screens/addEditMoviePage.dart';
 import 'package:frontend/screens/login.dart';
 import 'package:frontend/screens/profilePage.dart';

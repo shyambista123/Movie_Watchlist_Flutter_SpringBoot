@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:frontend/auth_service.dart';
-import 'package:frontend/screens/movielist.dart';
+import 'package:frontend/authService.dart';
+import 'package:frontend/screens/movieList.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 

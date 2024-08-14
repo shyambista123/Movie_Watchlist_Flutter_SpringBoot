@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:frontend/screens/login.dart';
-import 'package:frontend/screens/movielist.dart';
-import 'package:frontend/auth_service.dart';
+import 'package:frontend/screens/movieList.dart';
+import 'package:frontend/authService.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
