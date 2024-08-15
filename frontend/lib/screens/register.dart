@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _checkIfLoggedIn() async {
-    if (_isRedirecting) return; // Prevent multiple redirections
+    if (_isRedirecting) return;
     _isRedirecting = true;
 
     final token = await _authService.getToken();
@@ -38,7 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
         MaterialPageRoute(builder: (context) => Movielist()),
       );
     } else {
-      _isRedirecting = false; // Reset redirect state if no token is found
+      _isRedirecting = false;
     }
   }
 
