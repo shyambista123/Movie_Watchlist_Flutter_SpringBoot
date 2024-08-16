@@ -11,7 +11,7 @@ spring:
       ddl-auto: update
     show-sql: true
   server:
-    address: 192.168.1.67
+    address: 192.168.1.66
     # address: 192.168.23.98
 
 jwt:

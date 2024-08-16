@@ -10,7 +10,10 @@ class ProfilePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text("Profile"),
+          title: const Text(
+            "Profile",
+            style: TextStyle(color: Colors.white),
+          ),
           centerTitle: true,
           backgroundColor: Colors.blue,
         ),
@@ -25,7 +28,8 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 50,
-                        backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+                        backgroundImage:
+                            NetworkImage('https://via.placeholder.com/150'),
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -48,9 +52,11 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               Container(
-                color: Colors.blue,
+                color: Color.fromARGB(255, 130, 209, 26),
                 child: const TabBar(
                   indicatorColor: Colors.white,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white,
                   tabs: [
                     Tab(text: "Watched List"),
                     Tab(text: "Movie Watchlist"),
@@ -63,8 +69,12 @@ class ProfilePage extends StatelessWidget {
                   height: 300,
                   child: const TabBarView(
                     children: [
-                      Center(child: Text("Watched List", style: TextStyle(color: Colors.white))),
-                      Center(child: Text("Movie Watchlist",  style: TextStyle(color: Colors.white))),
+                      Center(
+                          child: Text("Watched List",
+                              style: TextStyle(color: Colors.black))),
+                      Center(
+                          child: Text("Movie Watchlist",
+                              style: TextStyle(color: Colors.black))),
                     ],
                   ),
                 ),

@@ -43,8 +43,9 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditMode ? 'Edit Movie' : 'Add Movie'),
+        title: Text(isEditMode ? 'Edit Movie' : 'Add Movie', style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.blueAccent,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
