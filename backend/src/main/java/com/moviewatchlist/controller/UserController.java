@@ -1,6 +1,7 @@
 package com.moviewatchlist.controller;
 
 import com.moviewatchlist.model.User;
+import com.moviewatchlist.repository.UserRepository;
 import com.moviewatchlist.service.JwtService;
 import com.moviewatchlist.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class UserController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserRepository userRepo;
 
 
     @PostMapping("/register")
@@ -42,5 +44,19 @@ public class UserController {
 
         jwtService.blacklistToken(token);
         return "Logged out successfully";
+    }
+    @GetMapping("/me")
+    public User getCurrentUser(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        if (jwtService.isTokenExpired(token)) {
+            throw new RuntimeException("Invalid Token: Token has expired");
+        }
+
+        String username = jwtService.extractUserName(token);
+
+        return userRepo.findByEmail(username);
     }
 }
