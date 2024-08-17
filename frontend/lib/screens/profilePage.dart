@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/movieWatchlistPage.dart';
+import 'package:frontend/screens/watchedListPage.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -33,7 +35,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        "John Doe",
+                        "Shyam Bista",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -41,7 +43,7 @@ class ProfilePage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "john.doe@example.com",
+                        "shyam.bista@example.com",
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
@@ -69,12 +71,8 @@ class ProfilePage extends StatelessWidget {
                   height: 300,
                   child: const TabBarView(
                     children: [
-                      Center(
-                          child: Text("Watched List",
-                              style: TextStyle(color: Colors.black))),
-                      Center(
-                          child: Text("Movie Watchlist",
-                              style: TextStyle(color: Colors.black))),
+                      WatchedListPage(),
+                      MovieWatchlistPage(),
                     ],
                   ),
                 ),
