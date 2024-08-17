@@ -16,33 +16,70 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   List<Map<String, dynamic>> moviesWatched = [];
   List<Map<String, dynamic>> moviesWatchlist = [];
-    late AuthService _authService;
-
+  late AuthService _authService;
+  String fullName = '';
+  String email = '';
 
   @override
   void initState() {
     super.initState();
+    _authService = AuthService();
+    _fetchUserDetails();
     _fetchMovies();
   }
 
-  Future<void> _fetchMovies() async {
-    final token = await _authService.getToken();
-    final apiUrl = dotenv.env['API_URL'] ?? '';
-    final response = await http.get(
-      Uri.parse('$apiUrl/api/movies'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
+  Future<void> _fetchUserDetails() async {
+    try {
+      final token = await _authService.getToken();
+      final apiUrl = dotenv.env['API_URL'] ?? '';
+      final response = await http.get(
+        Uri.parse('$apiUrl/users/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> allMovies = json.decode(response.body);
-      setState(() {
-        moviesWatched = allMovies.where((movie) => movie['watched'] == true).toList().cast<Map<String, dynamic>>();
-        moviesWatchlist = allMovies.where((movie) => movie['watched'] == false).toList().cast<Map<String, dynamic>>();
-      });
-    } else {
-      print('Failed to load movies');
+      if (response.statusCode == 200) {
+        final userData = json.decode(response.body);
+        setState(() {
+          fullName = userData['name'] ?? '';
+          email = userData['email'] ?? '';
+        });
+      } else {
+        print('Failed to load user details');
+      }
+    } catch (e) {
+      print('Error fetching user details: $e');
+    }
+  }
+
+  Future<void> _fetchMovies() async {
+    try {
+      final token = await _authService.getToken();
+      final apiUrl = dotenv.env['API_URL'] ?? '';
+      final response = await http.get(
+        Uri.parse('$apiUrl/api/movies'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> allMoviesDynamic = json.decode(response.body);
+        final List<Map<String, dynamic>> allMovies =
+            allMoviesDynamic.cast<Map<String, dynamic>>();
+
+        setState(() {
+          moviesWatched =
+              allMovies.where((movie) => movie['watched'] == true).toList();
+          moviesWatchlist =
+              allMovies.where((movie) => movie['watched'] == false).toList();
+        });
+      } else {
+        print('Failed to load movies');
+      }
+    } catch (e) {
+      print('Error fetching movies: $e');
     }
   }
 
@@ -66,7 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 color: Colors.blueAccent,
-                child: const Center(
+                child: Center(
                   child: Column(
                     children: [
                       CircleAvatar(
@@ -76,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        "Shyam Bista",
+                        fullName.isNotEmpty ? fullName : 'Loading...',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -84,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       Text(
-                        "shyam.bista@example.com",
+                        email.isNotEmpty ? email : 'Loading...',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
