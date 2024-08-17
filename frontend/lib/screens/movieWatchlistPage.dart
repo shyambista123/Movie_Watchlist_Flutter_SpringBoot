@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 
 class MovieWatchlistPage extends StatelessWidget {
-  const MovieWatchlistPage({super.key});
+  final List<Map<String, dynamic>> moviesWatchlist;
+
+  const MovieWatchlistPage({super.key, required this.moviesWatchlist});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        "Movie Watchlist",
-        style: TextStyle(color: Colors.black, fontSize: 20),
-      ),
+    return ListView.builder(
+      itemCount: moviesWatchlist.length,
+      itemBuilder: (context, index) {
+        final movie = moviesWatchlist[index];
+        return ListTile(
+          title: Text(movie['title'] ?? 'No Title'),
+          subtitle: Text('Genre: ${movie['genre'] ?? 'No Genre'}'),
+        );
+      },
     );
   }
 }
