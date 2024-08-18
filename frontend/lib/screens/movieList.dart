@@ -161,7 +161,7 @@ class _MovielistState extends State<Movielist> {
               IconButton(
                 icon: Icon(Icons.home, color: Colors.white),
                 onPressed: () {
-                  // Stay on the current page
+                  // Stay on the current page 
                 },
               ),
               IconButton(
