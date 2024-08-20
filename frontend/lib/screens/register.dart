@@ -19,7 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final ValueNotifier<bool> _obscurePassword = ValueNotifier<bool>(true);
   final ValueNotifier<bool> _obscureConfirmPassword = ValueNotifier<bool>(true);
   final AuthService _authService = AuthService();
-  bool _isRedirecting = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -28,8 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _checkIfLoggedIn() async {
-    if (_isRedirecting) return;
-    _isRedirecting = true;
+    if (_isLoading) return;
 
     final token = await _authService.getToken();
     if (token != null) {
@@ -37,8 +36,6 @@ class _RegisterPageState extends State<RegisterPage> {
         context,
         MaterialPageRoute(builder: (context) => Movielist()),
       );
-    } else {
-      _isRedirecting = false;
     }
   }
 
@@ -66,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 children: [
                   Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 50.0),
+                      padding: EdgeInsets.only(top: 50.0),
                       child: Text(
                         "Register",
                         style: TextStyle(
@@ -99,125 +96,40 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     child: Column(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(color: Colors.grey[100]!),
-                            ),
-                          ),
-                          child: TextField(
-                            controller: nameController,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Name",
-                              hintStyle: TextStyle(color: Colors.grey[400]),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(color: Colors.grey[100]!),
-                            ),
-                          ),
-                          child: TextField(
-                            controller: emailController,
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Email",
-                              hintStyle: TextStyle(color: Colors.grey[400]),
-                            ),
-                          ),
-                        ),
-                        ValueListenableBuilder<bool>(
-                          valueListenable: _obscurePassword,
-                          builder: (context, value, child) {
-                            return Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Colors.grey[100]!),
-                                ),
-                              ),
-                              child: TextField(
-                                controller: passwordController,
-                                obscureText: value,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: "Password",
-                                  hintStyle: TextStyle(color: Colors.grey[400]),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(value
-                                        ? Icons.visibility_off
-                                        : Icons.visibility),
-                                    onPressed: () {
-                                      _obscurePassword.value =
-                                          !_obscurePassword.value;
-                                    },
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        ValueListenableBuilder<bool>(
-                          valueListenable: _obscureConfirmPassword,
-                          builder: (context, value, child) {
-                            return Container(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                controller: confirmPasswordController,
-                                obscureText: value,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: "Confirm Password",
-                                  hintStyle: TextStyle(color: Colors.grey[400]),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(value
-                                        ? Icons.visibility_off
-                                        : Icons.visibility),
-                                    onPressed: () {
-                                      _obscureConfirmPassword.value =
-                                          !_obscureConfirmPassword.value;
-                                    },
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                        _buildTextField(nameController, "Name"),
+                        _buildTextField(emailController, "Email"),
+                        _buildPasswordField(passwordController, "Password", _obscurePassword),
+                        _buildPasswordField(confirmPasswordController, "Confirm Password", _obscureConfirmPassword),
                       ],
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Container(
-                    height: 50,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      gradient: const LinearGradient(
-                        colors: [Colors.blue, Colors.blueAccent],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: TextButton(
-                      onPressed: () {
-                        registerUser(context);
-                      },
-                      child: const Center(
-                        child: Text(
-                          "Register",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                  _isLoading
+                      ? CircularProgressIndicator()
+                      : Container(
+                          height: 50,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            gradient: const LinearGradient(
+                              colors: [Colors.blue, Colors.blueAccent],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: TextButton(
+                            onPressed: () => registerUser(context),
+                            child: const Center(
+                              child: Text(
+                                "Register",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 70),
                   GestureDetector(
                     onTap: () {
@@ -242,7 +154,61 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  Widget _buildTextField(TextEditingController controller, String hintText) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey[100]!),
+        ),
+      ),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: hintText,
+          hintStyle: TextStyle(color: Colors.grey[400]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(TextEditingController controller, String hintText, ValueNotifier<bool> obscureNotifier) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: obscureNotifier,
+      builder: (context, value, child) {
+        return Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Colors.grey[100]!),
+            ),
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: value,
+            decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: hintText,
+              hintStyle: TextStyle(color: Colors.grey[400]),
+              suffixIcon: IconButton(
+                icon: Icon(value ? Icons.visibility_off : Icons.visibility),
+                onPressed: () {
+                  obscureNotifier.value = !obscureNotifier.value;
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> registerUser(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     String name = nameController.text.trim();
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
@@ -252,6 +218,9 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill all fields')),
       );
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
@@ -259,6 +228,9 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Passwords do not match')),
       );
+      setState(() {
+        _isLoading = false;
+      });
       return;
     }
 
@@ -296,6 +268,10 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error occurred')),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 }
