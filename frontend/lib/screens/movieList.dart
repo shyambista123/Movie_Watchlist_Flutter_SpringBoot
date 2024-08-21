@@ -39,18 +39,11 @@ class _MovielistState extends State<Movielist> {
         elevation: 0,
         centerTitle: true,
         actions: <Widget>[
-          Container(
-            width: 50.0,
-            height: 50.0,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Image.asset('logout.png'),
-              onPressed: () {
-                showLogoutConfirmationDialog();
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              showLogoutConfirmationDialog();
+            },
           ),
         ],
       ),
@@ -134,7 +127,7 @@ class _MovielistState extends State<Movielist> {
                               ],
                             ),
                           ),
-                          ButtonBar(
+                          ButtonBar( 
                             alignment: MainAxisAlignment.end,
                             children: [
                               TextButton(
@@ -168,7 +161,7 @@ class _MovielistState extends State<Movielist> {
               IconButton(
                 icon: Icon(Icons.home, color: Colors.white),
                 onPressed: () {
-                  // Stay on the current page
+                  // Stay on the current page 
                 },
               ),
               IconButton(
