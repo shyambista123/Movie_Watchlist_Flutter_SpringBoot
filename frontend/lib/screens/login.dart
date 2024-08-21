@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 300,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.blueAccent],
+                  colors: [Colors.green, Color.fromARGB(255, 90, 201, 47)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.blue.withOpacity(0.2),
+                            color: Colors.green.withOpacity(0.2),
                             blurRadius: 20.0,
                             offset: const Offset(0, 10),
                           ),
@@ -164,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 gradient: const LinearGradient(
-                                  colors: [Colors.blue, Colors.blueAccent],
+                                  colors: [Colors.green, Color.fromARGB(255, 90, 201, 47)],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -191,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text(
                         "Don't have an account? Create here",
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: Colors.green,
                         ),
                       ),
                     ),
