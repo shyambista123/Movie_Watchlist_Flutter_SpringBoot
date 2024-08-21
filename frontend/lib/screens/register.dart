@@ -50,7 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
               height: 300,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue, Colors.blueAccent],
+                  colors: [Colors.green, Color.fromARGB(255, 90, 201, 47)],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -88,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.blue.withOpacity(0.2),
+                          color: Colors.green.withOpacity(0.2),
                           blurRadius: 20.0,
                           offset: const Offset(0, 10),
                         ),
@@ -112,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             gradient: const LinearGradient(
-                              colors: [Colors.blue, Colors.blueAccent],
+                              colors: [Colors.green, Color.fromARGB(255, 90, 201, 47)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -141,7 +141,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: const Text(
                       "Already have an account? Login",
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: Colors.green,
                       ),
                     ),
                   ),

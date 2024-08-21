@@ -44,7 +44,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditMode ? 'Edit Movie' : 'Add Movie', style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color.fromARGB(255, 90, 201, 47),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -74,7 +74,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color.fromARGB(255, 90, 201, 47),
                   padding: EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -97,13 +97,13 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.blueAccent),
+        prefixIcon: Icon(icon, color: Color.fromARGB(255, 90, 201, 47)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+          borderSide: BorderSide(color: Color.fromARGB(255, 90, 201, 47), width: 2),
         ),
       ),
     );
@@ -127,13 +127,13 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: 'Watch Date',
-          prefixIcon: Icon(Icons.calendar_today, color: Colors.blueAccent),
+          prefixIcon: Icon(Icons.calendar_today, color: Color.fromARGB(255, 90, 201, 47)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+            borderSide: BorderSide(color: Color.fromARGB(255, 90, 201, 47), width: 2),
           ),
         ),
         child: Text(

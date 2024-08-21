@@ -95,21 +95,21 @@ class _ProfilePageState extends State<ProfilePage> {
             style: TextStyle(color: Colors.white),
           ),
           centerTitle: true,
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.green,
         ),
         body: SingleChildScrollView(
           child: Column(
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 20),
-                color: Colors.blueAccent,
+                color: Color.fromARGB(255, 90, 201, 47),
                 child: Center(
                   child: Column(
                     children: [
                       CircleAvatar(
                         radius: 50,
                         backgroundColor:
-                            Colors.blue,
+                            Colors.green,
                         child: Icon(
                           Icons.person,
                           size: 50, 
@@ -118,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       SizedBox(height: 10),
                       Text(
-                        fullName.isNotEmpty ? fullName : 'Loading...',
+                        fullName.isNotEmpty ? fullName : '...',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -126,7 +126,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       Text(
-                        email.isNotEmpty ? email : 'Loading...',
+                        email.isNotEmpty ? email : '...',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 16,

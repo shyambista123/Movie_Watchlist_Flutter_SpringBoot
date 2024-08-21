@@ -35,15 +35,22 @@ class _MovielistState extends State<Movielist> {
           "Movie WatchList",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color.fromARGB(255, 90, 201, 47),
         elevation: 0,
         centerTitle: true,
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              showLogoutConfirmationDialog();
-            },
+          Container(
+            width: 50.0,
+            height: 50.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Image.asset('logout.png'),
+              onPressed: () {
+                showLogoutConfirmationDialog();
+              },
+            ),
           ),
         ],
       ),
@@ -72,7 +79,7 @@ class _MovielistState extends State<Movielist> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Card(
-                      elevation: 5,
+                      elevation: 1,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -81,7 +88,7 @@ class _MovielistState extends State<Movielist> {
                           Container(
                             height: 150,
                             decoration: BoxDecoration(
-                              color: Colors.blueAccent,
+                              color: Color.fromARGB(255, 90, 201, 47),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(15),
                                 topRight: Radius.circular(15),
@@ -127,7 +134,7 @@ class _MovielistState extends State<Movielist> {
                               ],
                             ),
                           ),
-                          ButtonBar( 
+                          ButtonBar(
                             alignment: MainAxisAlignment.end,
                             children: [
                               TextButton(
@@ -152,7 +159,7 @@ class _MovielistState extends State<Movielist> {
               ),
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Colors.blueAccent,
+        color: Color.fromARGB(255, 90, 201, 47),
         child: Container(
           height: 60.0,
           child: Row(
@@ -161,7 +168,7 @@ class _MovielistState extends State<Movielist> {
               IconButton(
                 icon: Icon(Icons.home, color: Colors.white),
                 onPressed: () {
-                  // Stay on the current page 
+                  // Stay on the current page
                 },
               ),
               IconButton(
@@ -184,7 +191,7 @@ class _MovielistState extends State<Movielist> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Colors.blueAccent),
+          Icon(icon, size: 18, color: Color.fromARGB(255, 90, 201, 47)),
           SizedBox(width: 8),
           Text(text, style: TextStyle(fontSize: 16)),
         ],
