@@ -225,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
         if (response.statusCode == 200) {
           final token = response.body;
 
-          print('Token received: $token');
+          // print('Token received: $token');
           if (token.isNotEmpty) {
             await _authService.saveToken(token);
 
