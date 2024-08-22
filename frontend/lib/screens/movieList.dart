@@ -142,6 +142,12 @@ class _MovielistState extends State<Movielist> {
                                   confirmDeleteDialog(movie['id']);
                                 },
                               ),
+                              if (!movie['watched'])
+                                TextButton(
+                                  child: Text('Mark as Watched',
+                                      style: TextStyle(color: Colors.green)),
+                                  onPressed: () => _markAsWatched(movie['id']),
+                                ),
                             ],
                           ),
                         ],
@@ -246,6 +252,25 @@ class _MovielistState extends State<Movielist> {
       });
     } else {
       print('Failed to load movies');
+    }
+  }
+
+  Future<void> _markAsWatched(int id) async {
+    final token = await _authService.getToken();
+    final apiUrl = dotenv.env['API_URL'] ?? '';
+
+    final response = await http.post(
+      Uri.parse('$apiUrl/api/movies/$id/watched'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Successfully marked as watched, refresh the movies list
+      await _fetchMovies();
+    } else {
+      print('Failed to mark movie as watched');
     }
   }
 
