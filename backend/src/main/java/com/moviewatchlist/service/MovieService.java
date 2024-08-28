@@ -40,6 +40,7 @@ public class MovieService {
         if (optionalMovie.isPresent()) {
             Movie movie = optionalMovie.get();
             movie.setWatched(true);
+            movie.setWatchDate(new Date());
             return movieRepository.save(movie);
         } else {
             throw new RuntimeException("Movie not found with id: " + id + " for user: " + user.getEmail());
