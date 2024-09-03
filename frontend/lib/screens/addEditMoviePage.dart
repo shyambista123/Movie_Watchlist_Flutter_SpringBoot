@@ -21,6 +21,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
   final TextEditingController genreController = TextEditingController();
   DateTime? watchDate;
   bool isEditMode = false;
+  bool isLoading = false; // Track the loading state
   late AuthService _authService;
 
   @override
@@ -43,47 +44,60 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditMode ? 'Edit Movie' : 'Add Movie', style: TextStyle(color: Colors.white),),
+        title: Text(isEditMode ? 'Edit Movie' : 'Add Movie', style: TextStyle(color: Colors.white)),
         backgroundColor: Color.fromARGB(255, 90, 201, 47),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildTextField(
-                controller: titleController,
-                label: 'Title',
-                icon: Icons.movie,
-              ),
-              SizedBox(height: 20),
-              _buildTextField(
-                controller: genreController,
-                label: 'Genre',
-                icon: Icons.category,
-              ),
-              SizedBox(height: 20),
-              _buildDateField(),
-              SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: _saveOrUpdateMovie,
-                child: Text(
-                  isEditMode ? 'Update Movie' : 'Save Movie',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 90, 201, 47),
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildTextField(
+                    controller: titleController,
+                    label: 'Title',
+                    icon: Icons.movie,
                   ),
-                ),
+                  SizedBox(height: 20),
+                  _buildTextField(
+                    controller: genreController,
+                    label: 'Genre',
+                    icon: Icons.category,
+                  ),
+                  SizedBox(height: 20),
+                  _buildDateField(),
+                  SizedBox(height: 40),
+                  ElevatedButton(
+                    onPressed: isLoading ? null : _saveOrUpdateMovie,
+                    child: isLoading
+                        ? CircularProgressIndicator()
+                        : Text(
+                            isEditMode ? 'Update Movie' : 'Save Movie',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 90, 201, 47),
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          if (isLoading)
+            Container(
+              color: Colors.black54,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -147,10 +161,17 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
   }
 
   Future<void> _saveOrUpdateMovie() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final String title = titleController.text;
     final String genre = genreController.text;
 
     if (title.isEmpty || genre.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
       _showSnackBar('Please fill in all fields', Colors.red);
       return;
     }
@@ -166,36 +187,44 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
 
     http.Response response;
 
-    if (isEditMode) {
-      response = await http.put(
-        Uri.parse('$apiUrl/api/movies/${widget.movieId}'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(movieData),
-      );
-    } else {
-      response = await http.post(
-        Uri.parse('$apiUrl/api/movies'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(movieData),
-      );
-    }
+    try {
+      if (isEditMode) {
+        response = await http.put(
+          Uri.parse('$apiUrl/api/movies/${widget.movieId}'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: json.encode(movieData),
+        );
+      } else {
+        response = await http.post(
+          Uri.parse('$apiUrl/api/movies'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: json.encode(movieData),
+        );
+      }
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      _showSnackBar(
-        isEditMode ? 'Movie updated successfully' : 'Movie added successfully',
-        Colors.green,
-      );
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Movielist()),
-      );
-    } else {
-      _showSnackBar('Failed to save movie. Please try again.', Colors.red);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _showSnackBar(
+          isEditMode ? 'Movie updated successfully' : 'Movie added successfully',
+          Colors.green,
+        );
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => Movielist()),
+        );
+      } else {
+        _showSnackBar('Failed to save movie. Please try again.', Colors.red);
+      }
+    } catch (e) {
+      _showSnackBar('An error occurred. Please try again.', Colors.red);
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
