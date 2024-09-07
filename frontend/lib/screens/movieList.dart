@@ -267,7 +267,6 @@ class _MovielistState extends State<Movielist> {
     );
 
     if (response.statusCode == 200) {
-      // Successfully marked as watched, refresh the movies list
       await _fetchMovies();
     } else {
       print('Failed to mark movie as watched');
