@@ -21,7 +21,7 @@ class _AddEditMoviePageState extends State<AddEditMoviePage> {
   final TextEditingController genreController = TextEditingController();
   DateTime? watchDate;
   bool isEditMode = false;
-  bool isLoading = false; // Track the loading state
+  bool isLoading = false; 
   late AuthService _authService;
 
   @override
